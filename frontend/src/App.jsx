@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Lenis from 'lenis';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
+import Login from './components/Auth/Login';
 import { SolarSystemScene } from './components/3D/SolarSystemScene';
 import { Dashboard } from './components/UI/Dashboard';
 import { NotificationPanel } from './components/UI/NotificationPanel';
@@ -10,7 +14,7 @@ import {
   filterByDistance,
 } from './data/celestialData';
 
-function App() {
+const DashboardPage = () => {
   const [selectedBody, setSelectedBody] = useState(null);
   const [filteredBodies, setFilteredBodies] = useState(celestialBodies);
   const [currentUnit, setCurrentUnit] = useState('km');
@@ -166,6 +170,27 @@ function App() {
       {/* Spacer for scrolling - extends content for camera zoom animation */}
       <div style={{ height: '11vh' }} />
     </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 
